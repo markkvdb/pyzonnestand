@@ -20,7 +20,7 @@ from pyzonnestand.position import (
     _sun_ra_decl,
     _sun_topo_azimuth_zenith,
     _sun_topo_ra_decl_hour,
-    sunpos,
+    sun_position,
 )
 
 
@@ -233,11 +233,11 @@ def test_position() -> None:
         assert e < 1e-4, f"{n}: {e}"
 
 
-def test_sunpos() -> None:
+def test_sun_position() -> None:
     """Test sun position calculation."""
     start = datetime(2019, 1, 1, 12, 0, 0)
     dt = [start + timedelta(hours=i) for i in range(48)]
-    x = sunpos(
+    x = sun_position(
         dt=dt,
         latitude=52.0,
         longitude=5.0,

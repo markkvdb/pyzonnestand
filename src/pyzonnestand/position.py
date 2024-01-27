@@ -3,13 +3,70 @@
 __all__ = ["sunpos", "topocentric_sunpos", "observed_sunpos", "arcdist"]
 
 from datetime import datetime
+from typing import Callable
 
 import numpy as np
+from numpy.typing import ArrayLike, NDArray
 
-VERSION = "1.1.1"
+
+def observed_sun_position(
+    dt: ArrayLike,
+    latitude: ArrayLike,
+    longitude: ArrayLike,
+    elevation: ArrayLike,
+    temperature: ArrayLike | None = None,
+    pressure: ArrayLike | None = None,
+    atmos_refract: ArrayLike | None = None,
+    delta_t: ArrayLike = 0,
+    radians: bool = False,
+) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
+    """Compute the observed coordinates of the sun as viewed at the given time and location.
+
+    Parameters
+    ----------
+    dt : array_like of datetime or float
+        UTC datetime objects or UTC timestamps (as per datetime.utcfromtimestamp) representing the times of observations
+    latitude, longitude : array_like of float
+        decimal degrees, positive for north of the equator and east of Greenwich
+    elevation : array_like of float
+        meters, relative to the WGS-84 ellipsoid
+    temperature : None or array_like of float, optional
+        celcius, default is 14.6 (global average in 2013)
+    pressure : None or array_like of float, optional
+        millibar, default is 1013 (global average in ??)
+    atmos_refract : None or array_like of float, optional
+        Atmospheric refraction at sunrise and sunset, in degrees. Default is 0.5667
+    delta_t : array_like of float, optional
+        seconds, default is 0, difference between the earth's rotation time (TT) and universal time (UT)
+    radians : bool, optional
+        return results in radians if True, degrees if False (default)
+
+    Returns
+    -------
+    azimuth_angle : ndarray, measured eastward from north
+    zenith_angle : ndarray, measured down from vertical
+    """
+    return sunpos(
+        dt,
+        latitude,
+        longitude,
+        elevation,
+        temperature,
+        pressure,
+        atmos_refract,
+        delta_t,
+        radians,
+    )[:2]
 
 
-def topocentric_sunpos(dt, latitude, longitude, elevation, delta_t=0, radians=False):
+def topocentric_sun_position(
+    dt: ArrayLike,
+    latitude: ArrayLike,
+    longitude: ArrayLike,
+    elevation: ArrayLike,
+    delta_t: ArrayLike = 0,
+    radians: bool = False,
+) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
     """Compute the topocentric coordinates of the sun as viewed at the given time and location.
 
     Parameters
@@ -37,16 +94,22 @@ def topocentric_sunpos(dt, latitude, longitude, elevation, delta_t=0, radians=Fa
 
 
 def sunpos(
-    dt,
-    latitude,
-    longitude,
-    elevation,
-    temperature=None,
-    pressure=None,
-    atmos_refract=None,
-    delta_t=0,
-    radians=False,
-):
+    dt: ArrayLike,
+    latitude: ArrayLike,
+    longitude: ArrayLike,
+    elevation: ArrayLike,
+    temperature: ArrayLike | None = None,
+    pressure: ArrayLike | None = None,
+    atmos_refract: ArrayLike | None = None,
+    delta_t: ArrayLike = 0,
+    radians: bool = False,
+) -> tuple[
+    NDArray[np.float64],
+    NDArray[np.float64],
+    NDArray[np.float64],
+    NDArray[np.float64],
+    NDArray[np.float64],
+]:
     """Compute the observed and topocentric coordinates of the sun as viewed at the given time and location.
 
     Parameters
@@ -96,56 +159,6 @@ def sunpos(
         delta_t,
         radians,
     )
-
-
-def observed_sunpos(
-    dt,
-    latitude,
-    longitude,
-    elevation,
-    temperature=None,
-    pressure=None,
-    atmos_refract=None,
-    delta_t=0,
-    radians=False,
-):
-    """Compute the observed coordinates of the sun as viewed at the given time and location.
-
-    Parameters
-    ----------
-    dt : array_like of datetime or float
-        UTC datetime objects or UTC timestamps (as per datetime.utcfromtimestamp) representing the times of observations
-    latitude, longitude : array_like of float
-        decimal degrees, positive for north of the equator and east of Greenwich
-    elevation : array_like of float
-        meters, relative to the WGS-84 ellipsoid
-    temperature : None or array_like of float, optional
-        celcius, default is 14.6 (global average in 2013)
-    pressure : None or array_like of float, optional
-        millibar, default is 1013 (global average in ??)
-    atmos_refract : None or array_like of float, optional
-        Atmospheric refraction at sunrise and sunset, in degrees. Default is 0.5667
-    delta_t : array_like of float, optional
-        seconds, default is 0, difference between the earth's rotation time (TT) and universal time (UT)
-    radians : bool, optional
-        return results in radians if True, degrees if False (default)
-
-    Returns
-    -------
-    azimuth_angle : ndarray, measured eastward from north
-    zenith_angle : ndarray, measured down from vertical
-    """
-    return sunpos(
-        dt,
-        latitude,
-        longitude,
-        elevation,
-        temperature,
-        pressure,
-        atmos_refract,
-        delta_t,
-        radians,
-    )[:2]
 
 
 # JIT is disabled if:
