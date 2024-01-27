@@ -1,9 +1,8 @@
 """Main position module."""
 
-__all__ = ["sunpos", "topocentric_sunpos", "observed_sunpos", "arcdist"]
+__all__ = ["sun_position", "topocentric_sun_position", "observed_sun_position"]
 
 from datetime import datetime
-from typing import Callable
 
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
@@ -46,7 +45,7 @@ def observed_sun_position(
     azimuth_angle : ndarray, measured eastward from north
     zenith_angle : ndarray, measured down from vertical
     """
-    return sunpos(
+    return sun_position(
         dt,
         latitude,
         longitude,
@@ -93,7 +92,7 @@ def topocentric_sun_position(
     return _topo_pos_v(jd, latitude, longitude, elevation, delta_t, radians)
 
 
-def sunpos(
+def sun_position(
     dt: ArrayLike,
     latitude: ArrayLike,
     longitude: ArrayLike,
